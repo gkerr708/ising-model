@@ -1,4 +1,7 @@
 # Ising Model Snapshots and Correlations
+ 
+### To-Do
+- [ ] Output a csv with the correlation function results.
 
 ### Low Temperature (Ordered Phase)
 <p align="center">
@@ -26,12 +29,33 @@ Fluctuations occur at many length scales.
 Spins appear mostly random with short-range correlations.
 
 ---
+# Modeling
+Using $500 \times 500$ lattice.
 
-### Radial Correlation Function (log–log)
+### Correlation Fit
 <p align="center">
-<img src="ising_autocorr_high-to-tc.png" width="650">
+<img src="correlation_fit.png" width="650">
+</p>
+Fit using:
+
+$$
+C(r) = \frac{Ae^{-r/\xi}}{r^{\eta}}.
+$$
+
+### Correlation Length vs Temperature
+<p align="center">
+<img src="correlation_length_vs_temp.png" width="450">
 </p>
 
-Radial spin–spin correlation function \(C(r)\) for several temperatures approaching the critical temperature \(T_c \approx 2.269\).
+The correlation length $\xi$ diverges as $T$ approaches $T_c$.
+
+### Power-Law Exponent vs Temperature
+<p align="center">
+<img src="power_law_exponent_vs_temp.png" width="450">
+</p>
+ 
+Should approach $p \approx 0.25$ at $T_c$.
+
+
 
 

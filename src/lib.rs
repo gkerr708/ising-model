@@ -6,7 +6,7 @@ use rand::{Rng, SeedableRng};
 struct Ising2D {
     rows: usize,
     cols: usize,
-    spins: Vec<i8>, // ±1
+    spins: Vec<i8>, // 1 for up, -1 for down
 }
 
 impl Ising2D {
@@ -38,7 +38,7 @@ impl Ising2D {
         self.spin(up, j) + self.spin(down, j) + self.spin(i, left) + self.spin(i, right)
     }
 
-    // J=1, kB=1; ΔE = 2 s_i Σ_nn s_j
+    // J=1, kB=1; delta E = 2 s_i \sum_nn s_j
     #[inline]
     fn delta_e_flip(&self, i: usize, j: usize) -> i32 {
         2 * self.spin(i, j) * self.nn_sum(i, j)
@@ -81,11 +81,13 @@ impl Ising2D {
     }
 }
 
+#[allow(unused_variables)]
 fn simulate(
     rows: usize,
     cols: usize,
     temperature: f64,
-    n_therm: usize,
+    n_therm: usize, // number of thermalization sweeps (this is the number of sweeps to reach
+    // equilibrium before measurements)
     n_sweeps: usize,
     seed: Option<u64>,
 ) -> (Ising2D, f64, f64, f64) {
@@ -96,12 +98,6 @@ fn simulate(
 
     let beta = 1.0 / temperature;
     let mut model = Ising2D::new(rows, cols, &mut rng);
-
-    // Not needed
-    //for _ in 0..n_therm {
-    //    model.metropolis_sweep(beta, &mut rng);
-    //}
-
     let n_sites = (rows * cols) as f64;
     let mut e_sum = 0.0;
     let mut mabs_sum = 0.0;
