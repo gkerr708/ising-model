@@ -23,8 +23,7 @@ def log_fit_exp_and_power(r: np.ndarray, ri: float, p: float, log_A: float) -> n
 
 if __name__ == "__main__":
     
-    # Example usage
-    csv_path = Path(__file__).parents[2] / "ising_correlation_500x500.csv"
+    csv_path = Path(__file__).parents[2] / "data" / "ising_correlation_1000x1000.csv"
     df = pd.read_csv(csv_path)
     temperatures = sorted(set(df["temperature"]))
     max_r = 10
@@ -58,9 +57,10 @@ if __name__ == "__main__":
     plt.ylabel("Correlation C(r)")
     plt.legend()
     plt.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.5)
-    plt.savefig("correlation_fit.png", dpi=300)
+    ##plt.savefig("correlation_fit.png", dpi=300)
+    plt.show()
+    plt.close()
 
-    # How plot ri vs temp and p vs temp on the other axis
     plt.figure(figsize=(6, 4))
     ri_values = []
     p_values = []
@@ -84,9 +84,9 @@ if __name__ == "__main__":
     plt.ylabel("Fitted Parameters")
     plt.legend()
     plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
-    plt.savefig("correlation_length_vs_temp.png", dpi=300)
+    #plt.savefig("correlation_length_vs_temp.png", dpi=300)
+    plt.show()
     plt.close()
-
 
     plt.figure(figsize=(6,4))
     plt.plot(temperatures, p_values, marker="o", label="Power Law Exponent (p)")
@@ -96,7 +96,8 @@ if __name__ == "__main__":
     plt.ylabel("Fitted Parameters")
     plt.legend()
     plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
-    plt.savefig("power_law_exponent_vs_temp.png", dpi=300)
+    #plt.savefig("power_law_exponent_vs_temp.png", dpi=300)
+    plt.show()
 
 
 

@@ -1,1 +1,1 @@
-/home/gkerr/code/ising-rust/target/release/lib_core.so: /home/gkerr/code/ising-rust/src/lib.rs
+/home/gkerr/code/ising-model/target/release/lib_core.so: /home/gkerr/code/ising-model/src/lib.rs
