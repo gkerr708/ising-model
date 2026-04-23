@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -26,19 +29,31 @@ def show_or_save(filename: str) -> None:
     plt.close()
 
 
+def add_temp_colorbar(fig, ax, norm, cmap) -> None:
+    sm = cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax)
+    cbar.set_label("Temperature T")
+
+
 if __name__ == "__main__":
-    lattice_length = 2000
-    csv_path = Path(__file__).parents[2] / "data" / f"ising_correlation_{lattice_length}x{lattice_length}.csv"
+    lattice_length = 100
+    n_sweeps = 50_000
+    csv_path = Path(__file__).parents[2] / "data" / f"ising_correlation_{lattice_length}x{lattice_length}_N{n_sweeps}.csv"
     df = pd.read_csv(csv_path)
 
     temperatures = sorted(set(df["temperature"]))
     df = df[(df["r"] > 0) & (df["r"] < 10) & (df["C_r"] > 0)]
 
+    cmap = cm.coolwarm
+    norm = mcolors.Normalize(vmin=min(temperatures), vmax=max(temperatures))
+
     ri_values, p_values = [], []
 
     # --- Plot 1: correlation data + fits ---
-    plt.figure(figsize=(8, 5.5))
+    fig, ax = plt.subplots(figsize=(8, 5.5))
     for temp in temperatures:
+        color = cmap(norm(temp))
         subset = df[df["temperature"] == temp]
         r = subset["r"].values
         C_r = subset["C_r"].values
@@ -54,20 +69,24 @@ if __name__ == "__main__":
         ri_values.append(ri_fit)
         p_values.append(p_fit)
 
-        plt.plot(r, C_r, marker="o", linestyle="", label=f"T={temp:.3f}")
-        plt.plot(
+        ax.plot(r, C_r, marker="o", linestyle="", color=color)
+        ax.plot(
             r,
             fit_exp_and_power(r, ri_fit, p_fit, np.exp(log_A_fit)),
             linestyle="--",
-            label=f"Fit T={temp:.3f}, ri={ri_fit:.1e}, p={p_fit:.3f}",
+            color=color,
         )
 
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.xlabel("Distance r")
-    plt.ylabel("Correlation C(r)")
-    plt.legend()
-    plt.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.5)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Distance r")
+    ax.set_ylabel("Correlation C(r)")
+    ax.legend(handles=[
+        Line2D([0], [0], marker="o", color="gray", linestyle="", label="Data"),
+        Line2D([0], [0], color="gray", linestyle="--", label="Fit"),
+    ])
+    ax.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.5)
+    add_temp_colorbar(fig, ax, norm, cmap)
     show_or_save(f"figures/plots/correlation_fit_{lattice_length}x{lattice_length}.png")
 
     # --- Save results ---
@@ -76,21 +95,24 @@ if __name__ == "__main__":
     print("Saved temp corrleaiton data to CSV file")
 
     # --- Plot 2: correlation length vs T ---
-    plt.figure(figsize=(6, 4))
-    plt.plot(temperatures, ri_values, marker="o", label="Correlation Length (ri)")
-    plt.xlabel("Temperature T")
-    plt.ylabel("Correlation Length")
-    plt.legend()
-    plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(temperatures, ri_values, color="gray", linewidth=0.8, zorder=2)
+    ax.scatter(temperatures, ri_values, c=temperatures, cmap=cmap, norm=norm, zorder=3)
+    ax.set_xlabel("Temperature T")
+    ax.set_ylabel("Correlation Length")
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
+    add_temp_colorbar(fig, ax, norm, cmap)
     show_or_save(f"figures/plots/correlation_length_vs_temp_{lattice_length}x{lattice_length}.png")
 
     # --- Plot 3: power law exponent vs T ---
-    plt.figure(figsize=(6, 4))
-    plt.plot(temperatures, p_values, marker="o", label="Power Law Exponent (p)")
-    plt.hlines(0.25, temperatures[0], temperatures[-1], colors="r", linestyles="--", label="p=0.25 (expected at Tc)")
-    plt.xlabel("Temperature T")
-    plt.ylabel("Power Law Exponent")
-    plt.ylim(0, max(p_values) * 1.5)
-    plt.legend()
-    plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(temperatures, p_values, color="gray", linewidth=0.8, zorder=2)
+    ax.scatter(temperatures, p_values, c=temperatures, cmap=cmap, norm=norm, zorder=3)
+    ax.hlines(0.25, temperatures[0], temperatures[-1], colors="black", linestyles="--", label="p=0.25 (expected at Tc)")
+    ax.set_xlabel("Temperature T")
+    ax.set_ylabel("Power Law Exponent")
+    ax.set_ylim(0, max(p_values) * 1.5)
+    ax.legend()
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.5)
+    add_temp_colorbar(fig, ax, norm, cmap)
     show_or_save(f"figures/plots/power_law_exponent_vs_temp_{lattice_length}x{lattice_length}.png")

@@ -143,8 +143,10 @@ def main() -> None:
 
     # Parameters
     print("Running Ising simulation...")
-    rows = 2000
-    cols = 2000
+    n_therm = 2  # this currently does nothing
+    n_sweeps = 50_000
+    rows = 100
+    cols = 100
     tc = 2.26918531421347
     #temps = [tc - 1.5, tc, tc + 0.5]
     temps = [tc, 
@@ -154,8 +156,6 @@ def main() -> None:
              tc+0.2,
              tc+0.5,
              ]
-    n_therm = 2  # this currently does nothing
-    n_sweeps = 1000
     seed = None
 
     C_r_list = []
@@ -216,7 +216,7 @@ def main() -> None:
         [pd.DataFrame({"temperature": d["temperature"], "r": d["r"], "C_r": d["C_r"]}) for d in dataset],
         ignore_index=True,
     )
-    df.to_csv(f"ising_correlation_{rows}x{cols}.csv", index=False)
+    df.to_csv(f"data/ising_correlation_{rows}x{cols}_N{n_sweeps}.csv", index=False)
 
     # Generate plots for all temperatures
     # This should be moved to all different file since we are saving this to a CSV
